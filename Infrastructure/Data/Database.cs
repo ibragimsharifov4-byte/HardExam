@@ -1,0 +1,18 @@
+using Npgsql;
+
+namespace Infrastructure.Data;
+
+public class Database
+{
+    private string connectionString = 
+    @"Host = localhost;
+    Port = 5432;
+    Database = Exam;
+    Username = postgres;
+    Password = 1234";
+
+    public NpgsqlConnection Connection()
+    {
+        return new NpgsqlConnection(connectionString);
+    }
+}
