@@ -1,43 +1,38 @@
 using Domain.Models;
 using Infrastructure.Data;
 using Infrastructure.Interfaces;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class LeaveRequestRepository(Database database) : ILeaveReguestRepository
+public class LeaveRequestRepository(AppDbContext appDbContext) : ILeaveReguestRepository
 {
-    private Database _data = database;
+    private AppDbContext _context = appDbContext;
+
     public async Task<bool> AddLeaveRequest(LeaveRequest leaveRequest)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "insert into leaverequests(employeeid , leavetype, startdate , enddate , reason , status, createdat) values (@employeeid , @leavetype, @startdate , @enddate , @reason , @status, @createdat)";
-        var res = await con.ExecuteAsync(query, leaveRequest);
+        _context.LeaveRequests.Add(leaveRequest);
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 
     public async Task<List<LeaveRequest>> GetLeaveRequests()
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = @"select lv.id, lv.employeeid, lv.leavetype, lv.startdate, lv.enddate,
-        lv.status, lv.reason, lv.createdat,
-        e.id, e.firstname, e.lastname, e.email
-        from leaverequests lv
-        join employees e on e.id = lv.employeeid
-        order by lv.status";
-        var res = await con.QueryAsync<LeaveRequest>(query);
-        return res.ToList();
+        var res = await (from leaveRequest in _context.LeaveRequests
+                         join employee in _context.Employees on leaveRequest.EmployeeId equals employee.Id
+                         orderby leaveRequest.Status
+                         select leaveRequest).ToListAsync();
+        return res;
     }
 
-    public async Task<bool> ChangeStatus(int id , LeaveRequest leaveRequest)
+    public async Task<bool> ChangeStatus(int id, LeaveRequest leaveRequest)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "update leaverequests set status = @status where id = @id";
-        var res = await con.ExecuteAsync(query , new{id , leaveRequest.Status});
+        var existing = await _context.LeaveRequests.FirstOrDefaultAsync(x => x.Id == id);
+        if (existing == null)
+            return false;
+
+        existing.Status = leaveRequest.Status;
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
-
 }

@@ -1,53 +1,52 @@
 using Domain.Models;
 using Infrastructure.Data;
 using Infrastructure.Interfaces;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
+
 namespace Infrastructure.Repositories;
 
-public class DepartmentRepository(Database database) : IDepartmentRepository
+public class DepartmentRepository(AppDbContext appDbContext) : IDepartmentRepository
 {
-    private Database _data = database;
+    private AppDbContext _context = appDbContext;
+
     public async Task<bool> AddDepartment(Department department)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "insert into departments (name, description, createdat) values (@name, @description, @createdat)";
-        var res = await con.ExecuteAsync(query, department);
+        _context.Departments.Add(department);
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 
     public async Task<bool> DeleteDepartment(int id)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "delete from departments where id = @id";
-        var res = await con.ExecuteAsync(query, new { id });
+        var department = await _context.Departments.FirstOrDefaultAsync(x => x.Id == id);
+        if (department == null)
+            return false;
+
+        _context.Departments.Remove(department);
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 
     public async Task<Department?> GetDepartmentById(int id)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "select * from departments where id = @id";
-        return await con.QueryFirstOrDefaultAsync<Department>(query, new { id });
+        var department = await _context.Departments.FirstOrDefaultAsync(x => x.Id == id);
+        return department;
     }
 
     public async Task<List<Department>> GetDepartments()
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "select * from departments";
-        return (await con.QueryAsync<Department>(query)).ToList();
+        return await _context.Departments.ToListAsync();
     }
 
     public async Task<bool> UpdateDepartment(Department department)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "update departments set name = @name, description = @description where id = @id";
-        var res = await con.ExecuteAsync(query, department);
+        var existing = await _context.Departments.FirstOrDefaultAsync(x => x.Id == department.Id);
+        if (existing == null)
+            return false;
+
+        existing.Name = department.Name;
+        existing.Description = department.Description;
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
-
 }

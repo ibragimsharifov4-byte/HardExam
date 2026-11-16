@@ -1,77 +1,79 @@
 using Domain.Models;
 using Infrastructure.Interfaces;
 using Infrastructure.Data;
-using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class EmployeeRepository(Database database) : IEmployeeRepository
+public class EmployeeRepository(AppDbContext appDbContext) : IEmployeeRepository
 {
-    private Database _data = database;
+    private AppDbContext _context = appDbContext;
+
     public async Task<bool> AddEmployee(Employee employee)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "insert into employees(firstname , lastname , email , phone , hiredate , salary , departmentid , positionid) values (@firstname , @lastname , @email , @phone, @hiredate , @salary , @departmentid , @positionid)";
-        var res = await con.ExecuteAsync(query, employee);
+        _context.Employees.Add(employee);
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 
     public async Task<bool> DeleteEmployee(int id)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "delete from employees where id = @id";
-        var res = await con.ExecuteAsync(query, new { id });
+        var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == id);
+        if (employee == null)
+            return false;
+
+        _context.Employees.Remove(employee);
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 
     public async Task<Employee?> GetEmployeeById(int id)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "select * from employees where id = @id";
-        var res = await con.QueryFirstOrDefaultAsync<Employee>(query, new { id });
-        return res;
+        var employee = await _context.Employees.FirstOrDefaultAsync(x => x.Id == id);
+        return employee;
     }
 
     public async Task<List<Employee>> GetEmployees()
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "select * from employees";
-        var res = await con.QueryAsync<Employee>(query);
-        return res.ToList();
+        return await _context.Employees.ToListAsync();
     }
 
     public async Task<bool> UpdateEmployee(Employee employee)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "update employees set firstname = @firstname, lastname = @lastname, email = @email, phone = @phone, hiredate = @hiredate, salary = @salary, departmentid = @departmentid, positionid = @positionid where id = @id";
-        var res = await con.ExecuteAsync(query, employee);
+        var existing = await _context.Employees.FirstOrDefaultAsync(x => x.Id == employee.Id);
+        if (existing == null)
+            return false;
+
+        existing.FirstName = employee.FirstName;
+        existing.LastName = employee.LastName;
+        existing.Email = employee.Email;
+        existing.Phone = employee.Phone;
+        existing.HireDate = employee.HireDate;
+        existing.Salary = employee.Salary;
+        existing.DepartmentId = employee.DepartmentId;
+        existing.PositionId = employee.PositionId;
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 
     public async Task<List<Employee>> GetEmployeesByFilter()
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = @"select e.firstname , e.lastname , p.title , d.name 
-        from employees e
-        join positions p on e.positionid = p.id
-        join departments d on e.departmentid = d.id
-        order by e.firstname";
-        var res = await con.QueryAsync<Employee>(query);
-        return res.ToList();
+        var res = await (from employee in _context.Employees
+                         join position in _context.Positions on employee.PositionId equals position.Id
+                         join department in _context.Departments on employee.DepartmentId equals department.Id
+                         orderby employee.FirstName
+                         select employee).ToListAsync();
+        return res;
     }
 
     public async Task<bool> PatchEmployee(Employee employee)
     {
-        using var con = _data.Connection();
-        con.Open();
-        var query = "update employee set IsActive = false where id = @id";
-        var res = await con.ExecuteAsync(query, employee);
+        var existing = await _context.Employees.FirstOrDefaultAsync(x => x.Id == employee.Id);
+        if (existing == null)
+            return false;
+
+        existing.IsActive = false;
+        var res = await _context.SaveChangesAsync();
         return res > 0;
     }
 }
