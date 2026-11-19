@@ -1,3 +1,5 @@
+using Domain.Models;
+
 namespace Application.DTOs;
 
 public class GetEmployeeDto
@@ -11,7 +13,11 @@ public class GetEmployeeDto
     public decimal Salary { get; set; }
     public bool IsActive { get; set; }
     public int DepartmentId { get; set; }
+    public Department? department { get; set; }
+
     public string DepartmentName { get; set; } = null!;
     public int PositionId { get; set; }
+    public Position? position { get; set; }
+
     public string PositionTitle { get; set; } = null!;
 }

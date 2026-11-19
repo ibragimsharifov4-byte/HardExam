@@ -1,4 +1,5 @@
 using Domain.Enums;
+using Domain.Models;
 
 namespace Application.DTOs;
 
@@ -6,6 +7,7 @@ public class GetLeaveRequestDto
 {
     public int Id { get; set; }
     public int EmployeeId { get; set; }
+    public Employee? employee { get; set; }
     public string EmployeeName { get; set; } = null!;
     public LeaveType LeaveType { get; set; }
     public DateTime StartDate { get; set; }

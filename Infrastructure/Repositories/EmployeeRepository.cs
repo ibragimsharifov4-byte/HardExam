@@ -35,7 +35,10 @@ public class EmployeeRepository(AppDbContext appDbContext) : IEmployeeRepository
 
     public async Task<List<Employee>> GetEmployees()
     {
-        return await _context.Employees.ToListAsync();
+        var employees = await _context.Employees
+        .Include(x => x.department)
+        .Include(x => x.position).ToListAsync();
+        return employees;
     }
 
     public async Task<bool> UpdateEmployee(Employee employee)

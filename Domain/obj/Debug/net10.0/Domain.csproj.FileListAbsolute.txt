@@ -9,3 +9,4 @@ C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Domain\obj\Debu
 C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Domain\obj\Debug\net10.0\refint\Domain.dll
 C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Domain\obj\Debug\net10.0\Domain.pdb
 C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Domain\obj\Debug\net10.0\ref\Domain.dll
+C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Domain\obj\Debug\net10.0\Domain.sourcelink.json

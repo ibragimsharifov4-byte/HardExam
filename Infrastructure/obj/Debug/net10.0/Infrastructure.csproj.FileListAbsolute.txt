@@ -13,3 +13,4 @@ C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Infrastructure\
 C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Infrastructure\obj\Debug\net10.0\refint\Infrastructure.dll
 C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Infrastructure\obj\Debug\net10.0\Infrastructure.pdb
 C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Infrastructure\obj\Debug\net10.0\ref\Infrastructure.dll
+C:\Users\mardin it\OneDrive\Desktop\.net projects\week4\HardExam\Infrastructure\obj\Debug\net10.0\Infrastructure.sourcelink.json

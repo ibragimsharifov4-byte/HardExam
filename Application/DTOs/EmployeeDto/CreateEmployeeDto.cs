@@ -1,3 +1,5 @@
+using Domain.Models;
+
 namespace Application.DTOs;
 
 public class CreateEmployeeDto
@@ -10,4 +12,5 @@ public class CreateEmployeeDto
     public decimal Salary { get; set; }
     public int DepartmentId { get; set; }
     public int PositionId { get; set; }
+    public Position? position { get; set; }
 }

@@ -1,3 +1,5 @@
+using Domain.Models;
+
 namespace Application.DTOs;
 
 public class UpdateEmployeeDto
